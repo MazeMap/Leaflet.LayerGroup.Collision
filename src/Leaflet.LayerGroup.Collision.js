@@ -1,14 +1,11 @@
 
 L.LayerGroup.Collision = L.LayerGroup.extend({
 
-	initialize: function(layers) {
-		this._originalLayers = [];
-		this._visibleLayers  = [];
-		this._staticLayers   = [];
-		this._rbush = null;
-		L.LayerGroup.prototype.initialize.call(this, layers);
-	},
-
+	_originalLayers: [],
+	_visibleLayers: [],
+	_staticLayers: [],
+	_rbush: [],
+	_cachedRelativeBoxes: [],
 
 	addLayer: function(layer) {
 		if (! '_icon' in layer) {
@@ -26,8 +23,8 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	onAdd: function (map) {
 		this._map = map;
 
-		this._switchBush();
-		map.on('zoomend', this._switchBush, this);
+		this._onZoomEnd();
+		map.on('zoomend', this._onZoomEnd, this);
 	},
 
 
@@ -35,19 +32,32 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 		var z    = this._map.getZoom();
 		var bush = this._rbush;
 
-		// Add the layer to the map so it's instantiated on the DOM,
-		//   in order to fetch its position and size.
-		L.LayerGroup.prototype.addLayer.call(this, layer);
-		var htmlElement = layer._icon;
+		var boxes = this._cachedRelativeBoxes[layer._leaflet_id];
+		var visible = false;
+		if (!boxes) {
+			// Add the layer to the map so it's instantiated on the DOM,
+			//   in order to fetch its position and size.
+			L.LayerGroup.prototype.addLayer.call(this, layer);
+			var visible = true;
+// 			var htmlElement = layer._icon;
+			var box = this._getIconBox(layer._icon);
+			boxes = this._getRelativeBoxes(layer._icon.children, box);
+			boxes.push(box);
+			this._cachedRelativeBoxes[layer._leaflet_id] = boxes;
+		}
 
-		var boxes = this._getHtmlElementBoxes(layer._icon);
+		boxes = this._positionBoxes(this._map.latLngToLayerPoint(layer.getLatLng()),boxes);
+
 		var collision = false;
 		for (var i=0; i<boxes.length && !collision; i++) {
 			collision = bush.search(boxes[i]).length > 0;
+// 			collision = bush.collides(boxes[i]);
 		}
 
 		if (!collision) {
-// 			this._map.addLayer(layer);	// Already added before the calculations
+			if (!visible) {
+				L.LayerGroup.prototype.addLayer.call(this, layer);
+			}
 			this._visibleLayers.push(layer);
 			bush.load(boxes);
 		} else {
@@ -56,40 +66,85 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	},
 
 
-	// Similar to L.DomUtil.GetPosition(), but works on any HTML element, even
-	//   nested children.
-	/// FIXME: Detect whether the element has absolute/relative positioning instead
-	///   of inherited???
-	_getHtmlElementBox(el) {
-		var pos = L.DomUtil.getPosition(el);
-		if (!pos) {
-			var parentBox = this._getHtmlElementBox(el.offsetParent);
-			pos = {
-				x: parentBox[0] + el.offsetLeft,
-				y: parentBox[1] + el.offsetTop
-			}
+	// Returns a plain array with the relative dimensions of a L.Icon, based
+	//   on the computed values from iconSize and iconAnchor.
+	_getIconBox: function (el) {
+
+		if (! 'getComputedStyle' in window) {
+			// Fallback for MSIE8, will most probably fail on edge cases
+			return [ 0, 0, el.offsetWidth, el.offsetHeight];
 		}
-		var w   = el.offsetWidth;
-		var h   = el.offsetHeight;
-		return [pos.x, pos.y, pos.x + w, pos.y + h];
+
+		var styles = window.getComputedStyle(el);
+
+		// getComputedStyle() should return values already in pixels, so using arseInt()
+		//   is not as much as a hack as it seems to be.
+
+		return [
+			parseInt(styles.marginLeft),
+			parseInt(styles.marginTop),
+			parseInt(styles.marginLeft) + parseInt(styles.width),
+			parseInt(styles.marginTop)  + parseInt(styles.height)
+		];
 	},
 
-	_getHtmlElementBoxes(el) {
+
+	// Much like _getIconBox, but works for positioned HTML elements, based on offsetWidth/offsetHeight.
+	_getRelativeBoxes: function(els,baseBox) {
 		var boxes = [];
-		for (var i=0; i<el.children.length; i++) {
-			var childBoxes = this._getHtmlElementBoxes(el.children[i])
-			var boxes = boxes.concat( childBoxes );
+		for (var i=0; i<els.length; i++) {
+			var el = els[i];
+			var box = [
+				el.offsetLeft,
+				el.offsetTop,
+				el.offsetLeft + el.offsetWidth,
+				el.offsetTop  + el.offsetHeight
+			];
+			box = this._offsetBoxes(box, baseBox);
+			boxes.push( box );
+
+			if (el.children.length) {
+				var parentBox = baseBox;
+				if ('getComputedStyle' in window) {
+					var positionStyle = window.getComputedStyle(el).position;
+					if (positionStyle === 'absolute' || positionStyle === 'relative') {
+						parentBox = box;
+					}
+				}
+				boxes = boxes.concat( this._getRelativeBoxes(el.children, parentBox) );
+			}
 		}
-		boxes.push( this._getHtmlElementBox(el) );
 		return boxes;
 	},
 
+	_offsetBoxes: function(a,b){
+		return [
+			a[0] + b[0],
+			a[1] + b[1],
+			a[2] + b[0],
+			a[3] + b[1]
+		];
+	},
 
+	// Adds the coordinate of the layer (in pixels / map canvas units) to each box coordinate.
+	_positionBoxes: function(offset, boxes) {
+		var newBoxes = [];	// Must be careful to not overwrite references to the original ones.
+		for (var i=0; i<boxes.length; i++) {
+			newBoxes.push( this._positionBox( offset, boxes[i] ) );
+		}
+		return newBoxes;
+	},
 
-	/// FIXME!!! Check if data in the bush for that zoom level is calculated, then
-	///   switch data from the old bush to the new bush.
-	/// In other words: cache things!!
-	_switchBush: function() {
+	_positionBox: function(offset, box) {
+		return [
+			box[0] + offset.x,
+			box[1] + offset.y,
+			box[2] + offset.x,
+			box[3] + offset.y,
+		]
+	},
+
+	_onZoomEnd: function() {
 
 		for (var i=0; i<this._visibleLayers.length; i++) {
 			L.LayerGroup.prototype.removeLayer.call(this, this._visibleLayers[i]);
@@ -97,9 +152,12 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 
 		this._rbush = rbush();
 
+		var z = this._map.getZoom();
+
 		for (var i=0; i < this._originalLayers.length; i++) {
 			this._maybeAddLayerToRBush(this._originalLayers[i]);
 		}
+
 	}
 });
 
