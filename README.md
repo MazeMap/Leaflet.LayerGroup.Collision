@@ -21,6 +21,20 @@ This plugin uses Vladimir Agafonkin's `rbush` library for the grunt work of dete
 Caveats: this plugin expects markers to not change dinamically, to not be draggable, and marker deletion is not supported (yet). Currently everything is recalculated on zoom change and no caching is performed
 
 
+Usage
+-------------
+
+Works as a normal Leaflet LayerGroup, just add your markers to it.
+
+When instantiating, can take the 'margin' option. This defines the margin between markers, in pixels, and defaults to zero.
+
+```
+var collisionLayer = L.LayerGroup.collision({margin:5});
+collisionLayer.addTo(map);
+
+collisionLayer.add( L.marker( markeroptions ) );
+```
+
 
 Demo
 ------

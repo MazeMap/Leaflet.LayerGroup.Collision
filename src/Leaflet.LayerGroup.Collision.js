@@ -6,6 +6,12 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	_staticLayers: [],
 	_rbush: [],
 	_cachedRelativeBoxes: [],
+	_margin: 0,
+
+	initialize: function (options) {
+		L.LayerGroup.prototype.initialize.call(this, options);
+		this._margin = options.margin || 0;
+	},
 
 	addLayer: function(layer) {
 		if (! '_icon' in layer) {
@@ -136,11 +142,12 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	},
 
 	_positionBox: function(offset, box) {
+
 		return [
-			box[0] + offset.x,
-			box[1] + offset.y,
-			box[2] + offset.x,
-			box[3] + offset.y,
+			box[0] + offset.x - this._margin,
+			box[1] + offset.y - this._margin,
+			box[2] + offset.x + this._margin,
+			box[3] + offset.y + this._margin,
 		]
 	},
 
