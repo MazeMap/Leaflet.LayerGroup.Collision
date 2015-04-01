@@ -39,9 +39,10 @@ collisionLayer.add( L.marker( markeroptions ) );
 Demo
 ------
 
-In order to try out the demo, clone the repo, run `bower install`, and point your browser to the `demo.html` file. A live example is not available due to the lack of a CDN for `rbush.js`.
+There is a live demo at http://mazemap.github.io/Leaflet.LayerGroup.Collision/demo/demo.html
 
-The demo loads about 1000 placenames, each of them being a `L.DivIcon` with two boxes. If you want to try loading more/less data, just comment/uncomment a different GeoJSON file in `demo.html`.
+The demo loads about 1000 placenames, each of them being a `L.DivIcon` with two boxes.
 
 The demo includes data from Natural Earth, which is public domain. Please visit  http://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/ for more information.
 
+In order to try the demo locally, just clone the repo (but remember to use `git clone --recursive` to pull the `rbush` submodule), and see the file `demo/demo.html`. You can choose to load more or less data by commenting/uncommenting the lines that include the natural earth data files.
