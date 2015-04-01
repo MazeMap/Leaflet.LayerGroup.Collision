@@ -1,0 +1,3 @@
+[submodule "demo/rbush"]
+	path = demo/rbush
+	url = https://github.com/mourner/rbush.git
