@@ -1,4 +1,7 @@
 
+
+var isMSIE8 = ! ('getComputedStyle' in window && typeof window.getComputedStyle === 'function')
+
 L.LayerGroup.Collision = L.LayerGroup.extend({
 
 	_originalLayers: [],
@@ -57,7 +60,6 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 		var collision = false;
 		for (var i=0; i<boxes.length && !collision; i++) {
 			collision = bush.search(boxes[i]).length > 0;
-// 			collision = bush.collides(boxes[i]);
 		}
 
 		if (!collision) {
@@ -76,10 +78,10 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	//   on the computed values from iconSize and iconAnchor.
 	_getIconBox: function (el) {
 
-		if (! 'getComputedStyle' in window) {
-			// Fallback for MSIE8, will most probably fail on edge cases
-			return [ 0, 0, el.offsetWidth, el.offsetHeight];
-		}
+// 		if (isMSIE8) {
+// 			// Fallback for MSIE8, will most probably fail on edge cases
+// 			return [ 0, 0, el.offsetWidth, el.offsetHeight];
+// 		}
 
 		var styles = window.getComputedStyle(el);
 
@@ -111,12 +113,12 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 
 			if (el.children.length) {
 				var parentBox = baseBox;
-				if ('getComputedStyle' in window) {
+// 				if (!isMSIE8) {
 					var positionStyle = window.getComputedStyle(el).position;
 					if (positionStyle === 'absolute' || positionStyle === 'relative') {
 						parentBox = box;
 					}
-				}
+// 				}
 				boxes = boxes.concat( this._getRelativeBoxes(el.children, parentBox) );
 			}
 		}
@@ -168,6 +170,17 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	}
 });
 
+
+// MSIE8 fails to use rbush properly (see https://github.com/mourner/rbush/issues/31),
+//   so work around that by making L.LayerGroup.Collision into a plain L.LayerGroup
+//   and crossing our fingers.
+// If MSIE8 support is ever to be done for this, then care has to be taken with
+//   calls to window.getComputedStyle().
+var isMSIE8 = 'ActiveXObject' in window && document.documentMode < 9;
+
+if (isMSIE8) {
+	L.LayerGroup.Collision = L.LayerGroup;
+}
 
 
 L.LayerGroup.collision = function (options) {
