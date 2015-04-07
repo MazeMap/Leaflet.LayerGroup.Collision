@@ -68,6 +68,9 @@
 			var feat = cities.features[i];
 			var labelClass = 'city-label city-label-' + feat.properties.scalerank;
 
+// 			Note that the markers are not interactive because MSIE on a WinPhone will take *ages*
+// 			to run addEventListener() on them.
+
 			var marker = L.marker(L.GeoJSON.coordsToLatLng(feat.geometry.coordinates), {
 				icon: L.divIcon({
 					html:
@@ -75,7 +78,9 @@
 						feat.properties.name +
 						"</span>"
 				})
-			});
+				,interactive: false	// Post-0.7.3
+				,clickable:   false	//      0.7.3
+				});
 			collisionLayer.addLayer(marker);
 		}
 		collisionLayer.addTo(map);
