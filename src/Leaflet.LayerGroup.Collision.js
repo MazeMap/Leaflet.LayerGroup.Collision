@@ -17,7 +17,7 @@ function extensions(parentClass) { return {
 	},
 
 	addLayer: function(layer) {
-		if (! '_icon' in layer) {
+		if ( !('options' in layer) || !('icon' in layer.options)) {
 			this._staticLayers.push(layer);
 			parentClass.prototype.addLayer.call(this, layer);
 			return;
@@ -31,6 +31,10 @@ function extensions(parentClass) { return {
 
 	onAdd: function (map) {
 		this._map = map;
+
+		for (var i in this._staticLayers) {
+			map.addLayer(this._staticLayers[i]);
+		}
 
 		this._onZoomEnd();
 		map.on('zoomend', this._onZoomEnd, this);
