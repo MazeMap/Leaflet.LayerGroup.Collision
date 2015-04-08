@@ -1,8 +1,8 @@
 
 
-var isMSIE8 = ! ('getComputedStyle' in window && typeof window.getComputedStyle === 'function')
+// var isMSIE8 = ! ('getComputedStyle' in window && typeof window.getComputedStyle === 'function')
 
-L.LayerGroup.Collision = L.LayerGroup.extend({
+function extensions(parentClass) { return {
 
 	_originalLayers: [],
 	_visibleLayers: [],
@@ -12,14 +12,14 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	_margin: 0,
 
 	initialize: function (options) {
-		L.LayerGroup.prototype.initialize.call(this, options);
+		parentClass.prototype.initialize.call(this, options);
 		this._margin = options.margin || 0;
 	},
 
 	addLayer: function(layer) {
 		if (! '_icon' in layer) {
 			this._staticLayers.push(layer);
-			L.LayerGroup.prototype.addLayer.call(this, layer);
+			parentClass.prototype.addLayer.call(this, layer);
 			return;
 		}
 
@@ -46,7 +46,7 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 		if (!boxes) {
 			// Add the layer to the map so it's instantiated on the DOM,
 			//   in order to fetch its position and size.
-			L.LayerGroup.prototype.addLayer.call(this, layer);
+			parentClass.prototype.addLayer.call(this, layer);
 			var visible = true;
 // 			var htmlElement = layer._icon;
 			var box = this._getIconBox(layer._icon);
@@ -64,12 +64,12 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 
 		if (!collision) {
 			if (!visible) {
-				L.LayerGroup.prototype.addLayer.call(this, layer);
+				parentClass.prototype.addLayer.call(this, layer);
 			}
 			this._visibleLayers.push(layer);
 			bush.load(boxes);
 		} else {
-			L.LayerGroup.prototype.removeLayer.call(this, layer);
+			parentClass.prototype.removeLayer.call(this, layer);
 		}
 	},
 
@@ -156,7 +156,7 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 	_onZoomEnd: function() {
 
 		for (var i=0; i<this._visibleLayers.length; i++) {
-			L.LayerGroup.prototype.removeLayer.call(this, this._visibleLayers[i]);
+			parentClass.prototype.removeLayer.call(this, this._visibleLayers[i]);
 		}
 
 		this._rbush = rbush();
@@ -168,8 +168,12 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 		}
 
 	}
-});
+}};
 
+
+L.LayerGroup.Collision   = L.LayerGroup.extend(extensions( L.LayerGroup ));
+L.FeatureGroup.Collision = L.FeatureGroup.extend(extensions( L.FeatureGroup ));
+L.GeoJSON.Collision      = L.GeoJSON.extend(extensions( L.GeoJSON ));
 
 // MSIE8 fails to use rbush properly (see https://github.com/mourner/rbush/issues/31),
 //   so work around that by making L.LayerGroup.Collision into a plain L.LayerGroup
@@ -179,11 +183,21 @@ L.LayerGroup.Collision = L.LayerGroup.extend({
 var isMSIE8 = 'ActiveXObject' in window && document.documentMode < 9;
 
 if (isMSIE8) {
-	L.LayerGroup.Collision = L.LayerGroup;
+	L.LayerGroup.Collision   = L.LayerGroup;
+	L.FeatureGroup.Collision = L.FeatureGroup;
+	L.GeoJSON.Collision      = L.GeoJSON;
 }
 
 
 L.LayerGroup.collision = function (options) {
 	return new L.LayerGroup.Collision(options);
+};
+
+L.FeatureGroup.collision = function (options) {
+	return new L.FeatureGroup.Collision(options);
+};
+
+L.GeoJSON.collision = function (options) {
+	return new L.GeoJSON.Collision(options);
 };
 

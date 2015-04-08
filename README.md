@@ -3,6 +3,8 @@ Leaflet.LayerGroup.Collision
 
 Provides basic collision detection in order to declutter large or overlapping sets of Leaflet markers.
 
+Don't like READMEs? Then see http://mazemap.github.io/Leaflet.LayerGroup.Collision/demo/demo.html
+
 
 What?
 --------
@@ -18,7 +20,7 @@ Collision detection is done by using the dimensions of the DOM elements inside t
 
 This plugin uses Vladimir Agafonkin's `rbush` library for the grunt work of detecting bounding box collisions.
 
-Caveats: this plugin expects markers to not change dinamically, to not be draggable, and marker deletion is not supported (yet). Currently everything is recalculated on zoom change and no caching is performed
+Caveats: this plugin expects markers to not change dinamically, to not be draggable, and marker deletion is not supported (yet). Currently everything is recalculated on zoom change. Only partial data caching is done - marker bounding boxes are cached; collisions per zoom level are recalculated.
 
 
 Usage
@@ -35,6 +37,8 @@ collisionLayer.addTo(map);
 collisionLayer.add( L.marker( markeroptions ) );
 ```
 
+This plugin also extends `L.FeatureGroup` into `L.FeatureGroup.collision` and `L.GeoJSON` into `L.GeoJSON.collision`.
+
 
 Demo
 ------
@@ -45,4 +49,4 @@ The demo loads about 1000 placenames, each of them being a `L.DivIcon` with two 
 
 The demo includes data from Natural Earth, which is public domain. Please visit  http://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/ for more information.
 
-In order to try the demo locally, just clone the repo (but remember to use `git clone --recursive` to pull the `rbush` submodule), and see the file `demo/demo.html`. You can choose to load more or less data by commenting/uncommenting the lines that include the natural earth data files.
+In order to try the demo locally, just clone the repo, run `bower install` (if using the `gh-pages` branch, use `git clone --recursive` instead to pull the `rbush` submodule), and see the file `demo/demo.html`. You can choose to load more or less data by commenting/uncommenting the lines that include the natural earth data files.
