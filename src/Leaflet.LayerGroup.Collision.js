@@ -14,6 +14,7 @@ function extensions(parentClass) { return {
 	initialize: function (options) {
 		parentClass.prototype.initialize.call(this, options);
 		this._margin = options.margin || 0;
+		this._rbush = null;
 	},
 
 	addLayer: function(layer) {
@@ -27,6 +28,31 @@ function extensions(parentClass) { return {
 		if (this._map) {
 			this._maybeAddLayerToRBush( layer );
 		}
+	},
+
+	removeLayer: function(layer) {
+		this._rbush.remove(this._cachedRelativeBoxes[layer._leaflet_id]);
+		delete this._cachedRelativeBoxes[layer._leaflet_id];
+		parentClass.prototype.removeLayer.call(this,layer);
+		var i;
+
+		i = this._originalLayers.indexOf(layer);
+		if (i !== -1) { this._originalLayers.splice(i,1); }
+
+		i = this._visibleLayers.indexOf(layer);
+		if (i !== -1) { this._visibleLayers.splice(i,1); }
+
+		i = this._staticLayers.indexOf(layer);
+		if (i !== -1) { this._staticLayers.splice(i,1); }
+	},
+
+	clearLayers: function() {
+		this._rbush = rbush();
+		this._originalLayers = [];
+		this._visibleLayers  = [];
+		this._staticLayers   = [];
+		this._cachedRelativeBoxes = [];
+		parentClass.prototype.clearLayers.call(this);
 	},
 
 	onAdd: function (map) {
