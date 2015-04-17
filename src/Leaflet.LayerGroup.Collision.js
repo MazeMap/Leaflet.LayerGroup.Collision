@@ -66,8 +66,16 @@ function extensions(parentClass) { return {
 		map.on('zoomend', this._onZoomEnd, this);
 	},
 
+	onRemove: function(map) {
+		for (var i in this._staticLayers) {
+			map.removeLayer(this._staticLayers[i]);
+		}
+		map.off('zoomend', this._onZoomEnd, this);
+		parentClass.prototype.onRemove.call(this, map);
+	},
 
 	_maybeAddLayerToRBush: function(layer) {
+
 		var z    = this._map.getZoom();
 		var bush = this._rbush;
 
@@ -190,8 +198,6 @@ function extensions(parentClass) { return {
 		}
 
 		this._rbush = rbush();
-
-		var z = this._map.getZoom();
 
 		for (var i=0; i < this._originalLayers.length; i++) {
 			this._maybeAddLayerToRBush(this._originalLayers[i]);
