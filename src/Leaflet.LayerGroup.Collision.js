@@ -1,6 +1,6 @@
 
 
-// var isMSIE8 = ! ('getComputedStyle' in window && typeof window.getComputedStyle === 'function')
+var isMSIE8 = !('getComputedStyle' in window && typeof window.getComputedStyle === 'function')
 
 function extensions(parentClass) { return {
 
@@ -116,10 +116,10 @@ function extensions(parentClass) { return {
 	//   on the computed values from iconSize and iconAnchor.
 	_getIconBox: function (el) {
 
-// 		if (isMSIE8) {
-// 			// Fallback for MSIE8, will most probably fail on edge cases
-// 			return [ 0, 0, el.offsetWidth, el.offsetHeight];
-// 		}
+		if (isMSIE8) {
+			// Fallback for MSIE8, will most probably fail on edge cases
+			return [ 0, 0, el.offsetWidth, el.offsetHeight];
+		}
 
 		var styles = window.getComputedStyle(el);
 
@@ -151,12 +151,12 @@ function extensions(parentClass) { return {
 
 			if (el.children.length) {
 				var parentBox = baseBox;
-// 				if (!isMSIE8) {
+				if (!isMSIE8) {
 					var positionStyle = window.getComputedStyle(el).position;
 					if (positionStyle === 'absolute' || positionStyle === 'relative') {
 						parentBox = box;
 					}
-// 				}
+				}
 				boxes = boxes.concat( this._getRelativeBoxes(el.children, parentBox) );
 			}
 		}
@@ -210,20 +210,6 @@ function extensions(parentClass) { return {
 L.LayerGroup.Collision   = L.LayerGroup.extend(extensions( L.LayerGroup ));
 L.FeatureGroup.Collision = L.FeatureGroup.extend(extensions( L.FeatureGroup ));
 L.GeoJSON.Collision      = L.GeoJSON.extend(extensions( L.GeoJSON ));
-
-// MSIE8 fails to use rbush properly (see https://github.com/mourner/rbush/issues/31),
-//   so work around that by making L.LayerGroup.Collision into a plain L.LayerGroup
-//   and crossing our fingers.
-// If MSIE8 support is ever to be done for this, then care has to be taken with
-//   calls to window.getComputedStyle().
-var isMSIE8 = 'ActiveXObject' in window && document.documentMode < 9;
-
-if (isMSIE8) {
-	L.LayerGroup.Collision   = L.LayerGroup;
-	L.FeatureGroup.Collision = L.FeatureGroup;
-	L.GeoJSON.Collision      = L.GeoJSON;
-}
-
 
 L.LayerGroup.collision = function (options) {
 	return new L.LayerGroup.Collision(options);
