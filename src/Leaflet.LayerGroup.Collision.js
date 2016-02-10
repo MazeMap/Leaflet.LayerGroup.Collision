@@ -123,7 +123,7 @@ function extensions(parentClass) { return {
 
 		var styles = window.getComputedStyle(el);
 
-		// getComputedStyle() should return values already in pixels, so using arseInt()
+		// getComputedStyle() should return values already in pixels, so using parseInt()
 		//   is not as much as a hack as it seems to be.
 
 		return [
@@ -211,15 +211,29 @@ L.LayerGroup.Collision   = L.LayerGroup.extend(extensions( L.LayerGroup ));
 L.FeatureGroup.Collision = L.FeatureGroup.extend(extensions( L.FeatureGroup ));
 L.GeoJSON.Collision      = L.GeoJSON.extend(extensions( L.GeoJSON ));
 
+// Uppercase factories only for backwards compatibility:
 L.LayerGroup.collision = function (options) {
-	return new L.LayerGroup.Collision(options);
+	return new L.LayerGroup.Collision(options || {});
 };
 
 L.FeatureGroup.collision = function (options) {
-	return new L.FeatureGroup.Collision(options);
+	return new L.FeatureGroup.Collision(options || {});
 };
 
 L.GeoJSON.collision = function (options) {
-	return new L.GeoJSON.Collision(options);
+	return new L.GeoJSON.Collision(options || {});
+};
+
+// Factories should always be lowercase, like this:
+L.layerGroup.collision = function (options) {
+	return new L.LayerGroup.Collision(options || {});
+};
+
+L.featureGroup.collision = function (options) {
+	return new L.FeatureGroup.Collision(options || {});
+};
+
+L.geoJson.collision = function (options) {
+	return new L.GeoJSON.Collision(options || {});
 };
 

@@ -1,0 +1,23 @@
+{
+  "name": "leaflet.layergroup.collision",
+  "version": "0.3.0",
+  "authors": [
+    "Iván Sánchez Ortega <ivan@mazemap.no>"
+  ],
+  "description": "Leaflet plugin for uncluttering L.Markers using basic collision detection.",
+  "main": "src/Leaflet.LayerGroup.Collision.js",
+  "keywords": [
+    "leaflet",
+    "collision"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MazeMap/Leaflet.LayerGroup.Collision.git"
+  },
+  "license": "MIT",
+  "homepage": "http://www.mazemap.com",
+  "dependencies": {
+    "leaflet": "^1.0.0-beta.2",
+    "rbush": "^1.4.2"
+  }
+}

@@ -31,7 +31,7 @@ Works as a normal Leaflet LayerGroup, just add your markers to it.
 When instantiating, can take the 'margin' option. This defines the margin between markers, in pixels, and defaults to zero.
 
 ```
-var collisionLayer = L.LayerGroup.collision({margin:5});
+var collisionLayer = L.layerGroup.collision({margin:5});
 collisionLayer.addTo(map);
 
 collisionLayer.add( L.marker( markeroptions ) );
