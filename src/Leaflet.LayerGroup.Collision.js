@@ -4,15 +4,13 @@ var isMSIE8 = !('getComputedStyle' in window && typeof window.getComputedStyle =
 
 function extensions(parentClass) { return {
 
-	_originalLayers: [],
-	_visibleLayers: [],
-	_staticLayers: [],
-	_rbush: [],
-	_cachedRelativeBoxes: [],
-	_margin: 0,
-
 	initialize: function (options) {
 		parentClass.prototype.initialize.call(this, options);
+        this._originalLayers = [];
+        this._visibleLayers = [];
+        this._staticLayers = [];
+        this._rbush = [];
+        this._cachedRelativeBoxes = [];		
 		this._margin = options.margin || 0;
 		this._rbush = null;
 	},
