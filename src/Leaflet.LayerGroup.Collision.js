@@ -6,11 +6,11 @@ function extensions(parentClass) { return {
 
 	initialize: function (options) {
 		parentClass.prototype.initialize.call(this, options);
-        this._originalLayers = [];
-        this._visibleLayers = [];
-        this._staticLayers = [];
-        this._rbush = [];
-        this._cachedRelativeBoxes = [];		
+		this._originalLayers = [];
+		this._visibleLayers = [];
+		this._staticLayers = [];
+		this._rbush = [];
+		this._cachedRelativeBoxes = [];		
 		this._margin = options.margin || 0;
 		this._rbush = null;
 	},
