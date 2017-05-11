@@ -20,7 +20,7 @@ Collision detection is done by using the dimensions of the DOM elements inside t
 
 This plugin uses Vladimir Agafonkin's `rbush` library for the grunt work of detecting bounding box collisions.
 
-Caveats: this plugin expects markers to not change dinamically, to not be draggable, and marker deletion is not supported (yet). Currently everything is recalculated on zoom change. Only partial data caching is done - marker bounding boxes are cached; collisions per zoom level are recalculated.
+Caveats: this plugin expects markers to not change dynamically, to not be draggable, and marker deletion is not supported (yet). Currently everything is recalculated on zoom change. Only partial data caching is done - marker bounding boxes are cached; collisions per zoom level are recalculated.
 
 
 Usage
