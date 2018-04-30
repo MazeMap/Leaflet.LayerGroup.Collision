@@ -4,13 +4,20 @@ var isMSIE8 = !('getComputedStyle' in window && typeof window.getComputedStyle =
 
 function extensions(parentClass) { return {
 
-	initialize: function (options) {
-		parentClass.prototype.initialize.call(this, options);
+	initialize: function (arg1, arg2) {
+		var options;
+		if (parentClass === L.GeoJSON) {
+			parentClass.prototype.initialize.call(this, arg1, arg2);
+			options = arg2;
+		} else {
+			parentClass.prototype.initialize.call(this, arg1);
+			options = arg1;
+		}
 		this._originalLayers = [];
 		this._visibleLayers = [];
 		this._staticLayers = [];
 		this._rbush = [];
-		this._cachedRelativeBoxes = [];		
+		this._cachedRelativeBoxes = [];
 		this._margin = options.margin || 0;
 		this._rbush = null;
 	},
@@ -218,8 +225,8 @@ L.FeatureGroup.collision = function (options) {
 	return new L.FeatureGroup.Collision(options || {});
 };
 
-L.GeoJSON.collision = function (options) {
-	return new L.GeoJSON.Collision(options || {});
+L.GeoJSON.collision = function (geojson, options) {
+	return new L.GeoJSON.Collision(geojson, options || {});
 };
 
 // Factories should always be lowercase, like this:
@@ -231,7 +238,7 @@ L.featureGroup.collision = function (options) {
 	return new L.FeatureGroup.Collision(options || {});
 };
 
-L.geoJson.collision = function (options) {
-	return new L.GeoJSON.Collision(options || {});
+L.geoJson.collision = function (geojson, options) {
+	return new L.GeoJSON.Collision(geojson, options || {});
 };
 
