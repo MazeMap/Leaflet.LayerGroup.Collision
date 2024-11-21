@@ -1,3 +1,9 @@
+# Deprecated
+
+This repository is no longer maintained and is deprecated. Please be aware that it may not work with the latest versions of its dependencies.
+
+---
+
 Leaflet.LayerGroup.Collision
 ================================
 
